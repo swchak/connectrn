@@ -7,7 +7,6 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-// import LinearIndeterminate from "./LinearIndeterminate";
 
 const columns = [
   { id: "name", label: "Shift", minWidth: 100 },
@@ -33,17 +32,20 @@ export default function ShiftsListControl() {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [tableData, setTableData] = React.useState([]);
- 
-const fetchWithRetries = (url, retries) => fetch(url).then(res => {
-  if (res.ok) {
-    return res.json();
-  }
 
-  if(retries > 0) {
-    return fetchWithRetries(url, retries-1);
-  }
-  throw new Error(res.status)
-}).catch(error => console.log(error))
+  const fetchWithRetries = (url, retries) =>
+    fetch(url)
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        }
+
+        if (retries > 0) {
+          return fetchWithRetries(url, retries - 1);
+        }
+        throw new Error(res.status);
+      })
+      .catch((error) => console.log(error));
 
   React.useEffect(() => {
     Promise.all([
@@ -67,39 +69,6 @@ const fetchWithRetries = (url, retries) => fetch(url).then(res => {
       );
     });
   }, []);
-
-  // React.useEffect(() => {
-  //   const fetchNurses = async () => {
-  //     const res = await fetch("http://localhost:9001/nurses");
-  //     const data = await res.json();
-  //     setNurseList(data);
-  //     setLoading(false);
-  //   };
-  //   setLoading(true);
-  //   fetchNurses();
-  // }, [])
-  // React.useEffect(()=> {
-  //    const fetchShifts = async () => {
-  //        const res = await fetch("http://localhost:9001/shifts")
-  //        const data = await res.json();
-  //       setShiftList(data);
-  // }
-  // fetchShifts();
-  //   console.log(shiftList)
-  //   setTableData(
-  //     shiftList.map((shift) => {
-  //       const nurse = nurseList.find((nurse) => nurse.id === shift.nurse_id);
-  //       return {
-  //         ...shift,
-  //         "nurse": `${nurse.first_name}  ${nurse.last_name}`,
-  //       };
-  //     })
-  //   );
-  // }, []);
-
-    // React.useEffect(() => {
-    //   fetchNurses();
-    // }, []);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
