@@ -14,6 +14,7 @@ import {
 import NurseSelectDropDown from "./NurseSelectDropDown";
 import ShiftSelectDropDown from "./ShiftSelectDropDown";
 import ShiftsListControl from "./ShiftsListControl";
+import { assignNurseToShift } from "../services/services";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -55,15 +56,7 @@ export default class ShiftsListingPage extends React.Component {
     const { shiftSelected, nurseSelected } = this.state;
 
     try {
-      fetch(`http://localhost:9001/shifts/${shiftSelected}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nurseID: nurseSelected,
-        }),
-      })
+      assignNurseToShift(shiftSelected, nurseSelected)
         .then((res) => {
           console.log(res.json());
           this.setState({ open: false });

@@ -1,12 +1,13 @@
 import * as React from "react";
-import { Box, FormControl, InputLabel, Select, MenuItem} from "@mui/material";
+import { Box, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { fetchNurseList } from "../services/services";
 
 export default class NurseSelectDropDown extends React.Component {
   constructor() {
     super();
     this.state = {
       nurses: [],
-      value: ''
+      value: "",
     };
   }
 
@@ -15,12 +16,14 @@ export default class NurseSelectDropDown extends React.Component {
     this.props.nurseSelectedHandler(event.target.value);
   };
 
-
   componentDidMount() {
-    fetch("http://localhost:9001/nurses")
-      .then((response) => response.json())
-      .then((res) => this.setState({ nurses : res }))
-      .catch((reason) => console.log(reason));
+    fetchNurseList()
+      .then((res) => this.setState({ nurses: res }))
+      .catch((error) => console.log("could not fetch nurses list"));
+    // fetch("http://localhost:9001/nurses")
+    //   .then((response) => response.json())
+    //   .then((res) => this.setState({ nurses : res }))
+    //   .catch((reason) => console.log(reason));
   }
 
   render() {

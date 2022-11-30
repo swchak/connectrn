@@ -7,24 +7,36 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
+import { toLocalDateTime } from "../utils/utils";
+import { fetchNurseList, fetchShiftList } from "../services/services";
 
 const columns = [
-  { id: "name", label: "Shift", minWidth: 100 },
-  { id: "start", label: "Start Date", minWidth: 170 },
+  { id: "name", label: "Shift", minWidth: 100, type: "string" },
+  {
+    id: "start",
+    label: "Start Date",
+    minWidth: 170,
+    type: "datetime",
+    format: (value) => toLocalDateTime(value, "en-US"),
+  },
   {
     id: "end",
     label: "End Date",
     minWidth: 170,
+    type: "datetime",
+    format: (value) => toLocalDateTime(value, "en-US"),
   },
   {
     id: "qual_required",
     label: "Qualification Required",
     minWidth: 170,
+    type: "string",
   },
   {
     id: "nurse",
     label: "Nurse Assigned",
     minWidth: 170,
+    type: "string",
   },
 ];
 
@@ -33,41 +45,40 @@ export default function ShiftsListControl() {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [tableData, setTableData] = React.useState([]);
 
-  const fetchWithRetries = (url, retries) =>
-    fetch(url)
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        }
+  // const fetchWithRetries = (url, retries) =>
+  //   fetch(url)
+  //     .then((res) => {
+  //       if (res.ok) {
+  //         return res.json();
+  //       }
 
-        if (retries > 0) {
-          return fetchWithRetries(url, retries - 1);
-        }
-        throw new Error(res.status);
-      })
-      .catch((error) => console.log(error));
+  //       if (retries > 0) {
+  //         return fetchWithRetries(url, retries - 1);
+  //       }
+  //       throw new Error(res.status);
+  //     })
+  //     .catch((error) => console.log(error));
 
   React.useEffect(() => {
-    Promise.all([
-      fetchWithRetries("http://localhost:9001/nurses", 4),
-      fetchWithRetries("http://localhost:9001/shifts", 4),
-    ]).then(([nurses, shifts]) => {
-      setTableData(
-        shifts.map((shift) => {
-          const nurse =
-            shift.nurse_id === null
-              ? null
-              : nurses.find((nurse) => nurse.id === shift.nurse_id);
-          return {
-            ...shift,
-            nurse:
-              nurse === null
-                ? ""
-                : `${nurse.first_name}  ${nurse.last_name} ${nurse.qualification}`,
-          };
-        })
-      );
-    });
+    Promise.all([fetchNurseList(), fetchShiftList()]).then(
+      ([nurses, shifts]) => {
+        setTableData(
+          shifts.map((shift) => {
+            const nurse =
+              shift.nurse_id === null
+                ? null
+                : nurses.find((nurse) => nurse.id === shift.nurse_id);
+            return {
+              ...shift,
+              nurse:
+                nurse === null
+                  ? ""
+                  : `${nurse.first_name}  ${nurse.last_name} ${nurse.qualification}`,
+            };
+          })
+        );
+      }
+    );
   }, []);
 
   const handleChangePage = (event, newPage) => {
@@ -106,7 +117,7 @@ export default function ShiftsListControl() {
                       const value = shift[column.id];
                       return (
                         <TableCell key={column.id} align={column.align}>
-                          {column.format && typeof value === "number"
+                          {column.format && column.type === "datetime"
                             ? column.format(value)
                             : value}
                         </TableCell>
